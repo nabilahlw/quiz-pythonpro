@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Home - AI Quiz Pro{% endblock %}
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>🤖 Selamat Datang di AI Quiz Pro!</h1>
+        <p>Uji pengetahuan Anda tentang Artificial Intelligence, Machine Learning, Computer Vision, dan NLP!</p>
+    </div>
+
+    <!-- CTA Buttons -->
+    {% if 'user_id' not in session %}
+    <div class="cta-buttons">
+        <a href="{{ url_for('register') }}" class="btn btn-primary">Daftar Sekarang</a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+    </div>
+    {% else %}
+    <div class="cta-buttons">
+        <a href="{{ url_for('quiz') }}" class="btn btn-primary">Mulai Quiz</a>
+        <a href="{{ url_for('leaderboard') }}" class="btn btn-secondary">Lihat Leaderboard</a>
+    </div>
+    {% endif %}
+
+    <!-- Weather Section -->
+    <div class="weather-section">
+        <h2>🌤️ Prakiraan Cuaca</h2>
+        <form method="POST" action="{{ url_for('weather') }}" class="weather-form">
+            <input type="text" name="city" placeholder="Masukkan nama kota..." 
+                   value="{{ city if city else 'Jakarta' }}" required>
+            <button type="submit" class="btn btn-primary">Cek Cuaca</button>
+        </form>
+
+        {% if weather %}
+        <div class="weather-container">
+            <h3>📍 Cuaca di {{ city }}</h3>
+            <div class="weather-grid">
+                {% for day in weather %}
+                <div class="weather-card">
+                    <h4>{{ day.day }}</h4>
+                    <p class="date">{{ day.date }}</p>
+                    
+                    <div class="weather-info">
+                        <div class="weather-condition">
+                            <span class="weather-condition-icon">{{ day.weather_icon }}</span>
+                            <span>{{ day.weather_desc }}</span>
+                        </div>
+                        
+                        <div class="temps">
+                            <div class="temp-item">
+                                <span class="temp-label">☀️ Siang</span>
+                                <span class="temp-value">{{ day.day_temp }}°C</span>
+                                <span style="font-size: 0.9rem; opacity: 0.8;">Terasa: {{ day.feels_like_day }}°C</span>
+                            </div>
+                            <div class="temp-item">
+                                <span class="temp-label">🌙 Malam</span>
+                                <span class="temp-value">{{ day.night_temp }}°C</span>
+                                <span style="font-size: 0.9rem; opacity: 0.8;">Terasa: {{ day.feels_like_night }}°C</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-details">
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-label">💧 Kelembaban</div>
+                            <div class="weather-detail-value">{{ day.humidity }}%</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-label">💨 Angin</div>
+                            <div class="weather-detail-value">{{ day.wind_speed }} km/h</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-label">🌡️ Tekanan</div>
+                            <div class="weather-detail-value">{{ day.pressure }} hPa</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-label">☀️ UV Index</div>
+                            <div class="weather-detail-value">{{ day.uv_index }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Features Section -->
+    <div class="features">
+        <h2>✨ Fitur Quiz</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3>AI & Machine Learning</h3>
+                <p>Pelajari konsep dasar hingga advanced tentang kecerdasan buatan</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👁️</div>
+                <h3>Computer Vision</h3>
+                <p>Pahami bagaimana komputer memahami gambar dan video</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>Natural Language Processing</h3>
+                <p>Eksplorasi pemrosesan bahasa alami dan aplikasinya</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏆</div>
+                <h3>Sistem Poin & Leaderboard</h3>
+                <p>Kumpulkan poin dan bersaing dengan pemain lain</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

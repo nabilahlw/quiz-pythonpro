@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard - AI Quiz Pro{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="leaderboard-container">
+        <h1>🏆 Papan Peringkat</h1>
+        <p class="subtitle">Top 10 Pemain Terbaik</p>
+        
+        {% if leaderboard %}
+        <div class="leaderboard-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Peringkat</th>
+                        <th>Nickname</th>
+                        <th>Skor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for player in leaderboard %}
+                    <tr class="{% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
+                        <td class="rank">
+                            {% if loop.index == 1 %}
+                                🥇
+                            {% elif loop.index == 2 %}
+                                🥈
+                            {% elif loop.index == 3 %}
+                                🥉
+                            {% else %}
+                                {{ loop.index }}
+                            {% endif %}
+                        </td>
+                        <td class="nickname">{{ player[0] }}</td>
+                        <td class="score">{{ player[1] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>Belum ada data pemain. Jadilah yang pertama!</p>
+        </div>
+        {% endif %}
+        
+        <div class="leaderboard-actions">
+            {% if 'user_id' in session %}
+            <a href="{{ url_for('quiz') }}" class="btn btn-primary">Lanjutkan Quiz</a>
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">Kembali ke Home</a>
+            {% else %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary">Daftar untuk Bermain</a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

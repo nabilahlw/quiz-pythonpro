@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Register - AI Quiz Pro{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h1>📝 Daftar Akun Baru</h1>
+        <p class="subtitle">Buat akun untuk mulai bermain quiz AI & Python!</p>
+
+        {% if error %}
+        <div class="error-message">
+            <p>❌ {{ error }}</p>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('register') }}" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username <span style="color: red;">*</span></label>
+                <input type="text" id="username" name="username" required 
+                       placeholder="Masukkan username unik (min. 3 karakter)" minlength="3" maxlength="50">
+                <small>Username harus unik dan akan digunakan untuk login</small>
+            </div>
+
+            <div class="form-group">
+                <label for="nickname">Nickname <span style="color: red;">*</span></label>
+                <input type="text" id="nickname" name="nickname" required 
+                       placeholder="Nama yang ditampilkan (min. 3 karakter)" minlength="3" maxlength="50">
+                <small>Nickname akan muncul di leaderboard</small>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password <span style="color: red;">*</span></label>
+                <input type="password" id="password" name="password" required 
+                       placeholder="Minimal 6 karakter" minlength="6">
+                <small>Gunakan password yang kuat untuk keamanan akun</small>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">Konfirmasi Password <span style="color: red;">*</span></label>
+                <input type="password" id="confirm_password" name="confirm_password" required 
+                       placeholder="Ulangi password yang sama">
+                <small>Pastikan password yang dimasukkan sama</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Daftar Sekarang</button>
+        </form>
+
+        <p class="form-footer">
+            Sudah punya akun? <a href="{{ url_for('login') }}">Login di sini</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

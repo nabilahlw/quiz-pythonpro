@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Quiz - AI Quiz{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1>🎯 Quiz AI & Python</h1>
+            <div class="score-display">
+                <div class="score-item">
+                    <span class="score-label">Total Skor:</span>
+                    <span class="score-value">{{ total_score }}</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">Pertanyaan ke:</span>
+                    <span class="score-value">{{ question_num }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="question-container">
+            <h2 class="question">{{ question.question }}</h2>
+            <form id="quiz-form" class="options-container">
+                {% for option in question.options %}
+                <div class="option">
+                    <input type="radio" id="option{{ loop.index0 }}" name="answer" value="{{ loop.index0 }}" required>
+                    <label for="option{{ loop.index0 }}">{{ option }}</label>
+                </div>
+                {% endfor %}
+                
+                <button type="submit" class="btn btn-primary btn-block">Submit Jawaban</button>
+            </form>
+            <div id="result" class="result-message" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+<script>
+document.getElementById('quiz-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const options = this.querySelectorAll('input[type="radio"]');
+    
+    submitBtn.disabled = true;
+    options.forEach(opt => opt.disabled = true);
+    
+    fetch('{{ url_for("check_answer") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        const resultDiv = document.getElementById('result');
+        
+        if (data.correct) {
+            resultDiv.innerHTML = '✅ <strong>Benar!</strong> +10 poin';
+            resultDiv.className = 'result-message success';
+        } else {
+            const correctOption = document.querySelector(`label[for="option${data.correct_answer}"]`).textContent;
+            resultDiv.innerHTML = `❌ <strong>Salah!</strong><br>Jawaban yang benar: ${correctOption}`;
+            resultDiv.className = 'result-message error';
+        }
+        
+        resultDiv.style.display = 'block';
+        
+        setTimeout(() => {
+            window.location.href = '{{ url_for("quiz") }}';
+        }, 2500);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan. Silakan coba lagi.');
+        submitBtn.disabled = false;
+        options.forEach(opt => opt.disabled = false);
+    });
+});
+</script>
+{% endblock %}

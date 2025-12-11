@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Login - AI Quiz Pro{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h1>🔐 Login ke Akun Anda</h1>
+        <p class="subtitle">Masuk untuk melanjutkan quiz dan melihat skor Anda</p>
+
+        {% if error %}
+        <div class="error-message">
+            <p>❌ {{ error }}</p>
+        </div>
+        {% endif %}
+
+        {% if session.get('success_message') %}
+        <div class="success-message">
+            <p>✅ {{ session.pop('success_message') }}</p>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username <span style="color: red;">*</span></label>
+                <input type="text" id="username" name="username" required 
+                       placeholder="Masukkan username Anda" autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password <span style="color: red;">*</span></label>
+                <input type="password" id="password" name="password" required 
+                       placeholder="Masukkan password Anda">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+
+        <p class="form-footer">
+            Belum punya akun? <a href="{{ url_for('register') }}">Daftar di sini</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
