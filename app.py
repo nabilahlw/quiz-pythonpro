@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 import requests
 import random
 from datetime import datetime, timedelta
-from database import init_db, register_user, check_user, username_exists, nickname_exists, update_user_score, get_leaderboard, get_user_score, get_all_users
+from database import init_db, register_user, check_user, username_exists, nickname_exists, update_user_score, get_leaderboard, get_user_score
 
 app = Flask(__name__)
 app.secret_key = 'kunci_rahasia_yang_sangat_aman_12345'
@@ -220,8 +220,6 @@ def register():
         confirm_password = request.form.get('confirm_password', '')
         nickname = request.form.get('nickname', '').strip()
         
-        print(f"\n📝 Registration attempt - Username: {username}, Nickname: {nickname}")
-        
         error = None
         
         if not username or not password or not nickname:
@@ -245,7 +243,6 @@ def register():
             else:
                 error = 'Registrasi gagal! Coba lagi.'
         
-        print(f"❌ Registration failed: {error}")
         return render_template('register.html', error=error)
     
     return render_template('register.html')
@@ -253,14 +250,11 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user_id' in session:
-        print(f"⚠️ User already logged in: {session.get('nickname')}")
         return redirect(url_for('quiz'))
     
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
-        
-        print(f"\n🔐 Login attempt - Username: {username}")
         
         if not username or not password:
             return render_template('login.html', error='Username dan password harus diisi!')
@@ -274,31 +268,21 @@ def login():
             session['score'] = user[2]
             session.permanent = True
             
-            print(f"✅ Login successful - User ID: {user[0]}, Nickname: {user[1]}")
-            print(f"📊 Session data: {dict(session)}")
-            
             return redirect(url_for('quiz'))
         else:
-            print(f"❌ Login failed for username: {username}")
             return render_template('login.html', error='Username atau password salah!')
     
-    success_msg = session.pop('success_message', None)
     return render_template('login.html')
 
 @app.route('/logout')
 def logout():
-    username = session.get('nickname', 'Unknown')
     session.clear()
-    print(f"👋 User logged out: {username}")
     return redirect(url_for('home'))
 
 @app.route('/quiz')
 def quiz():
     if 'user_id' not in session:
-        print("⚠️ Unauthorized access to quiz - redirecting to login")
         return redirect(url_for('login'))
-    
-    print(f"\n🎯 Quiz accessed by: {session.get('nickname')} (ID: {session.get('user_id')})")
     
     if 'current_question' not in session:
         session['current_question'] = 0
@@ -337,9 +321,6 @@ def check_answer():
     if is_correct:
         session['quiz_score'] = session.get('quiz_score', 0) + 10
         update_user_score(session['user_id'], 10)
-        print(f"✅ Correct answer! User {session['nickname']} +10 points")
-    else:
-        print(f"❌ Wrong answer by user {session['nickname']}")
     
     return jsonify({
         'correct': is_correct,
@@ -350,20 +331,9 @@ def check_answer():
 @app.route('/leaderboard')
 def leaderboard():
     top_players = get_leaderboard()
-    print(f"🏆 Leaderboard accessed - showing {len(top_players)} players")
     return render_template('leaderboard.html', leaderboard=top_players)
 
-@app.route('/debug')
-def debug():
-    """Debug route to see all users"""
-    users = get_all_users()
-    return f"<pre>{users}</pre>"
-
+# PENTING: Untuk PythonAnywhere, jangan gunakan app.run()
+# PythonAnywhere menggunakan WSGI, bukan development server
 if __name__ == '__main__':
-    print("\n" + "="*50)
-    print("🚀 Starting Flask Application")
-    print("="*50)
-    print("\n📱 Akses dari komputer: http://127.0.0.1:5000")
-    print("📱 Akses dari HP (1 WiFi): http://10.135.228.249:5000")
-    print("="*50 + "\n")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True)

@@ -155,24 +155,6 @@ def get_leaderboard(limit=10):
         print(f"❌ Error getting leaderboard: {e}")
         return []
 
-def get_all_users():
-    """Debug function to see all users in database"""
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute('SELECT id, username, nickname, score FROM users')
-        users = cursor.fetchall()
-        conn.close()
-        
-        print("\n📋 === ALL USERS IN DATABASE ===")
-        for user in users:
-            print(f"ID: {user[0]} | Username: {user[1]} | Nickname: {user[2]} | Score: {user[3]}")
-        print("=" * 40 + "\n")
-        return users
-    except Exception as e:
-        print(f"❌ Error getting all users: {e}")
-        return []
-
 def reset_database():
     """Debug function to reset database"""
     try:
@@ -190,4 +172,3 @@ def reset_database():
 if __name__ == "__main__":
     print("Initializing database...")
     init_db()
-    get_all_users()
