@@ -1,13 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import requests
 import random
+import os
 from datetime import datetime, timedelta
 from database import init_db, register_user, check_user, username_exists, nickname_exists, update_user_score, get_leaderboard, get_user_score
 
 app = Flask(__name__)
 app.secret_key = 'kunci_rahasia_yang_sangat_aman_12345'
 
-WEATHER_API_KEY = '6eb597c47136ab5c3e9d7bc3df3bd7d8'
+# API Key - ambil dari environment atau gunakan default
+WEATHER_API_KEY = os.environ.get('WEATHER_API_KEY', 'a40ef2dfcac48e883287ffc3c60b9b2c')
 
 QUIZ_QUESTIONS = [
     {
@@ -74,130 +76,58 @@ QUIZ_QUESTIONS = [
 
 init_db()
 
-def get_weather_icon(weather_main):
-    """Mendapatkan emoji cuaca berdasarkan kondisi"""
-    weather_icons = {
-        'Clear': '☀️',
-        'Clouds': '☁️',
-        'Rain': '🌧️',
-        'Drizzle': '🌦️',
-        'Thunderstorm': '⛈️',
-        'Snow': '❄️',
-        'Mist': '🌫️',
-        'Smoke': '🌫️',
-        'Haze': '🌫️',
-        'Dust': '🌫️',
-        'Fog': '🌫️',
-        'Sand': '🌫️',
-        'Ash': '🌫️',
-        'Squall': '💨',
-        'Tornado': '🌪️'
-    }
-    return weather_icons.get(weather_main, '🌤️')
-
-def translate_weather(weather_desc):
-    """Menerjemahkan deskripsi cuaca ke Bahasa Indonesia"""
-    translations = {
-        'clear sky': 'Cerah',
-        'few clouds': 'Sedikit Berawan',
-        'scattered clouds': 'Berawan Tersebar',
-        'broken clouds': 'Berawan',
-        'overcast clouds': 'Mendung',
-        'light rain': 'Hujan Ringan',
-        'moderate rain': 'Hujan Sedang',
-        'heavy intensity rain': 'Hujan Lebat',
-        'thunderstorm': 'Badai Petir',
-        'snow': 'Salju',
-        'mist': 'Kabut',
-        'fog': 'Kabut Tebal'
-    }
-    return translations.get(weather_desc.lower(), weather_desc.title())
-
-def get_weather(city):
+# ==========================================
+# FUNGSI CUACA SIMPLE
+# ==========================================
+def get_weather_simple(city):
+    """
+    Fetch cuaca untuk 1 kota dengan data lengkap
+    """
     try:
-        url = f'http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={WEATHER_API_KEY}&units=metric&lang=id'
-        response = requests.get(url, timeout=5)
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric&lang=id"
+        resp = requests.get(url, timeout=6)
+        data = resp.json()
         
-        if response.status_code == 200:
-            data = response.json()
-            weather_data = []
-            
-            today = datetime.now().date()
-            
-            for i in range(3):
-                target_date = today + timedelta(days=i)
-                
-                day_temp = None
-                night_temp = None
-                day_weather = None
-                humidity = None
-                wind_speed = None
-                pressure = None
-                feels_like_day = None
-                feels_like_night = None
-                
-                for item in data['list']:
-                    dt = datetime.fromtimestamp(item['dt'])
-                    
-                    if dt.date() == target_date:
-                        hour = dt.hour
-                        
-                        if 12 <= hour <= 15 and day_temp is None:
-                            day_temp = round(item['main']['temp'])
-                            feels_like_day = round(item['main']['feels_like'])
-                            day_weather = item['weather'][0]
-                            humidity = item['main']['humidity']
-                            wind_speed = round(item['wind']['speed'] * 3.6, 1)
-                            pressure = item['main']['pressure']
-                        
-                        if 0 <= hour <= 3 and night_temp is None:
-                            night_temp = round(item['main']['temp'])
-                            feels_like_night = round(item['main']['feels_like'])
-                
-                if day_temp is None:
-                    first_data = data['list'][i*8] if i*8 < len(data['list']) else data['list'][0]
-                    day_temp = round(first_data['main']['temp'])
-                    feels_like_day = round(first_data['main']['feels_like'])
-                    day_weather = first_data['weather'][0]
-                    humidity = first_data['main']['humidity']
-                    wind_speed = round(first_data['wind']['speed'] * 3.6, 1)
-                    pressure = first_data['main']['pressure']
-                
-                if night_temp is None:
-                    night_temp = day_temp - 5
-                    feels_like_night = feels_like_day - 5
-                
-                days_id = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
-                day_name = days_id[target_date.weekday()]
-                
-                uv_index = min(11, max(1, int(day_temp / 5)))
-                if day_weather['main'] == 'Clear':
-                    uv_index = min(11, uv_index + 2)
-                elif day_weather['main'] in ['Clouds', 'Rain']:
-                    uv_index = max(1, uv_index - 2)
-                
-                weather_data.append({
-                    'date': target_date.strftime('%d/%m/%Y'),
-                    'day': day_name,
-                    'day_temp': day_temp,
-                    'night_temp': night_temp,
-                    'feels_like_day': feels_like_day,
-                    'feels_like_night': feels_like_night,
-                    'weather_main': day_weather['main'],
-                    'weather_desc': translate_weather(day_weather['description']),
-                    'weather_icon': get_weather_icon(day_weather['main']),
-                    'humidity': humidity,
-                    'wind_speed': wind_speed,
-                    'pressure': pressure,
-                    'uv_index': uv_index
-                })
-            
-            return weather_data
-        else:
+        # Cek status response
+        if resp.status_code != 200:
+            print(f"❌ Weather API error: {resp.status_code} - {data.get('message', 'Unknown error')}")
             return None
+        
+        # Emoji cuaca
+        weather_icons = {
+            'Clear': '☀️',
+            'Clouds': '☁️',
+            'Rain': '🌧️',
+            'Drizzle': '🌦️',
+            'Thunderstorm': '⛈️',
+            'Snow': '❄️',
+            'Mist': '🌫️',
+            'Smoke': '🌫️',
+            'Haze': '🌫️',
+            'Fog': '🌫️'
+        }
+        
+        weather_main = data["weather"][0]["main"]
+        weather_icon = weather_icons.get(weather_main, '🌤️')
+        
+        return {
+            "city": data.get("name", city),
+            "description": data["weather"][0]["description"].title(),
+            "main": weather_main,
+            "icon": weather_icon,
+            "temp": round(data["main"]["temp"]),
+            "feels_like": round(data["main"]["feels_like"]),
+            "humidity": data["main"]["humidity"],
+            "wind_speed": round(data["wind"]["speed"] * 3.6, 1),
+            "pressure": data["main"]["pressure"]
+        }
     except Exception as e:
-        print(f"❌ Error fetching weather: {e}")
+        print(f"❌ Exception in get_weather_simple: {e}")
         return None
+
+# ==========================================
+# ROUTES
+# ==========================================
 
 @app.route('/')
 def home():
@@ -205,9 +135,20 @@ def home():
 
 @app.route('/weather', methods=['POST'])
 def weather():
-    city = request.form.get('city', 'Jakarta')
-    weather_data = get_weather(city)
-    return render_template('home.html', weather=weather_data, city=city)
+    city = request.form.get('city', '').strip()
+    
+    if not city:
+        return render_template('home.html', weather_simple=None, city=None)
+    
+    print(f"🌤️ Fetching weather for: {city}")
+    weather_info = get_weather_simple(city)
+    
+    if weather_info:
+        print(f"✅ Weather data retrieved for {city}")
+    else:
+        print(f"❌ Failed to get weather for {city}")
+    
+    return render_template('home.html', weather_simple=weather_info, city=city)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -219,6 +160,8 @@ def register():
         password = request.form.get('password', '')
         confirm_password = request.form.get('confirm_password', '')
         nickname = request.form.get('nickname', '').strip()
+        
+        print(f"\n📝 Registration attempt - Username: {username}, Nickname: {nickname}")
         
         error = None
         
@@ -243,6 +186,7 @@ def register():
             else:
                 error = 'Registrasi gagal! Coba lagi.'
         
+        print(f"❌ Registration failed: {error}")
         return render_template('register.html', error=error)
     
     return render_template('register.html')
@@ -250,11 +194,14 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user_id' in session:
+        print(f"⚠️ User already logged in: {session.get('nickname')}")
         return redirect(url_for('quiz'))
     
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
+        
+        print(f"\n🔐 Login attempt - Username: {username}")
         
         if not username or not password:
             return render_template('login.html', error='Username dan password harus diisi!')
@@ -268,21 +215,28 @@ def login():
             session['score'] = user[2]
             session.permanent = True
             
+            print(f"✅ Login successful - User ID: {user[0]}, Nickname: {user[1]}")
             return redirect(url_for('quiz'))
         else:
+            print(f"❌ Login failed for username: {username}")
             return render_template('login.html', error='Username atau password salah!')
     
     return render_template('login.html')
 
 @app.route('/logout')
 def logout():
+    username = session.get('nickname', 'Unknown')
     session.clear()
+    print(f"👋 User logged out: {username}")
     return redirect(url_for('home'))
 
 @app.route('/quiz')
 def quiz():
     if 'user_id' not in session:
+        print("⚠️ Unauthorized access to quiz - redirecting to login")
         return redirect(url_for('login'))
+    
+    print(f"\n🎯 Quiz accessed by: {session.get('nickname')} (ID: {session.get('user_id')})")
     
     if 'current_question' not in session:
         session['current_question'] = 0
@@ -321,6 +275,9 @@ def check_answer():
     if is_correct:
         session['quiz_score'] = session.get('quiz_score', 0) + 10
         update_user_score(session['user_id'], 10)
+        print(f"✅ Correct answer! User {session['nickname']} +10 points")
+    else:
+        print(f"❌ Wrong answer by user {session['nickname']}")
     
     return jsonify({
         'correct': is_correct,
@@ -331,9 +288,13 @@ def check_answer():
 @app.route('/leaderboard')
 def leaderboard():
     top_players = get_leaderboard()
+    print(f"🏆 Leaderboard accessed - showing {len(top_players)} players")
     return render_template('leaderboard.html', leaderboard=top_players)
 
-# PENTING: Untuk PythonAnywhere, jangan gunakan app.run()
-# PythonAnywhere menggunakan WSGI, bukan development server
 if __name__ == '__main__':
-    app.run(debug=True)
+    print("\n" + "="*50)
+    print("🚀 AI Quiz Pro - Starting Application")
+    print("="*50)
+    print(f"🔑 Weather API Key: {WEATHER_API_KEY[:10]}...")
+    print("="*50 + "\n")
+    app.run(debug=True, host='0.0.0.0', port=5000)
