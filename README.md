@@ -10,10 +10,10 @@ Website: https://nabilahulwana.pythonanywhere.com
 - Leaderboard - Ranking pemain berdasarkan skor
 - Widget Cuaca - Data cuaca real-time menggunakan OpenWeatherMap API
 - Database - Penyimpanan data user dan skor dengan SQLite
-<img src="assets/home.png" width="300">
-<img src="assets/login.png" width="300">
-<img src="assets/leaderboard.png" width="300">
-<img src="assets/quiz.png" width="300">
+<img src="img/home.png" width="300">
+<img src="img/login.png" width="300">
+<img src="img/leaderboard.png" width="300">
+<img src="img/quiz.png" width="300">
 
 #### 🛠️ Tools
 - Backend: Python 3.10, Flask 3.0.0
@@ -24,7 +24,7 @@ Website: https://nabilahulwana.pythonanywhere.com
 
 #### 🚀 Instalasi & Menjalankan Lokal
 1. Clone Repository
-git clone https://github.com/YOUR_USERNAME/ai-quiz-pro.git
+git clone https://github.com/nabilahlw/quiz-pythonpro.git
 cd ai-quiz-pro
 2. Buat Virtual Environment
 python -m venv .venv
@@ -48,10 +48,10 @@ Cara Mendapatkan API Key:
 - Edit kodde file app.py baris 12: WEATHER_API_KEY = 'YOUR_API_KEY_HERE'
 
 #### 📁 Struktur Project
-<img src="assets/folders.png" width="300">
+<img src="img/folders.png" width="300">
 
 #### 🗄️ Database Schema (tabel users)
-<img src="assets/db.png" width="300">
+<img src="img/db.png" width="300">
 
 ####  Credits
 1. Flask - Web framework
