@@ -1,0 +1,11 @@
+<form action="/weather" method="POST">
+    <input type="text" name="city" placeholder="Masukkan nama kota" required>
+    <button type="submit">Cek Cuaca</button>
+</form>
+
+{% if weather %}
+    <h3>Cuaca di {{ weather.city }}:</h3>
+    <p>Deskripsi: {{ weather.description }}</p>
+    <p>Suhu: {{ weather.temp }}°C</p>
+    <p>Kelembapan: {{ weather.humidity }}%</p>
+{% endif %}
