@@ -10,10 +10,10 @@ Website: https://nabilahulwana.pythonanywhere.com
 - Leaderboard - Ranking pemain berdasarkan skor
 - Widget Cuaca - Data cuaca real-time menggunakan OpenWeatherMap API
 - Database - Penyimpanan data user dan skor dengan SQLite
-<img src="img/home.png"/>
-<img src="img/login.png"/>
-<img src="img/quiz.png"/>
-<img src="img/leaderboard.png"/>
+<img src="img/home.png.png"/>
+<img src="img/login.png.png"/>
+<img src="img/quiz.png.png"/>
+<img src="img/leaderboard.png.png"/>
 
 #### 🛠️ Tools
 - Backend: Python 3.10, Flask 3.0.0
@@ -48,10 +48,10 @@ Cara Mendapatkan API Key:
 - Edit kodde file app.py baris 12: WEATHER_API_KEY = 'YOUR_API_KEY_HERE'
 
 #### 📁 Struktur Project
-<img src="img/folders.png"/>
+<img src="img/folders.png.png"/>
 
 #### 🗄️ Database Schema (tabel users)
-<img src="img/db.png"/>
+<img src="img/db.png.png"/>
 
 ####  Credits
 1. Flask - Web framework
