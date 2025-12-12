@@ -10,10 +10,7 @@ Website: https://nabilahulwana.pythonanywhere.com
 - Leaderboard - Ranking pemain berdasarkan skor
 - Widget Cuaca - Data cuaca real-time menggunakan OpenWeatherMap API
 - Database - Penyimpanan data user dan skor dengan SQLite
-!(img/home.png)
-<img src="img/login.png" width="300">
-<img src="img/leaderboard.png" width="300">
-<img src="img/quiz.png" width="300">
+<img src="img/home.png" alt="home screen" />
 
 #### 🛠️ Tools
 - Backend: Python 3.10, Flask 3.0.0
